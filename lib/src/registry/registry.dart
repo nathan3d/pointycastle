@@ -6,10 +6,8 @@ library pointycastle.src.registry;
 
 import "package:quiver_pattern/regexp.dart";
 
-import "registry_disabled.dart"
-  if (dart.library.mirrors) "registry_reflectable.dart";
-export  "registry_disabled.dart"
-  if (dart.library.mirrors) "registry_reflectable.dart";
+import "registry_disabled.dart";
+export  "registry_disabled.dart";
 
 final FactoryRegistry registry = makeRegistry();
 

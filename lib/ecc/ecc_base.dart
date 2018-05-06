@@ -8,6 +8,7 @@ library pointycastle.impl.ecc.ecc_base;
 import "dart:typed_data";
 
 import "package:pointycastle/ecc/api.dart";
+import 'package:pointycastle/src/bigint.dart';
 
 /// Implementation of [ECDomainParameters]
 class ECDomainParametersImpl implements ECDomainParameters {
@@ -195,7 +196,9 @@ abstract class ECCurveBase implements ECCurve {
   }
 
   BigInt _fromArray( List<int> buf, int off, int length ) {
-    return new BigInt.fromBytes(1, buf.sublist(off, off+length));
+
+
+    return bytes2BigInt(buf.sublist(off, off+length));
   }
 
 }
@@ -219,7 +222,7 @@ ECPointBase _FpNafMultiplier(ECPointBase p, BigInt k, PreCompInfo preCompInfo) {
     // TODO Probably should try to add this
     // BigInt e = k.mod(n); // n == order of p
     BigInt e = k;
-    BigInt h = e*BigInt.from(3);
+    BigInt h = e* new BigInt.from(3);
 
     ECPointBase neg = -p;
     ECPointBase R = p;

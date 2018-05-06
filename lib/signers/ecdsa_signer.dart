@@ -9,6 +9,7 @@ import "dart:math";
 
 import "package:pointycastle/api.dart";
 import "package:pointycastle/ecc/api.dart";
+import 'package:pointycastle/src/bigint.dart';
 import "package:pointycastle/src/registry/registry.dart";
 
 bool _testBit(BigInt i, int n) {
@@ -181,9 +182,9 @@ class ECDSASigner implements Signer {
     var messageBitLength = message.length * 8;
 
     if( log2n >= messageBitLength ) {
-      return new BigInt.fromBytes( 1, message );
+      return bytes2BigInt(message);
     } else {
-      BigInt trunc = new BigInt.fromBytes(1, message);
+      BigInt trunc = bytes2BigInt(message);
 
       trunc = trunc >> (messageBitLength - log2n);
 
@@ -331,7 +332,7 @@ class _RFC6979KCalculator {
   }
 
   BigInt _bitsToInt(Uint8List t) {
-    var v = new BigInt.fromBytes(1, t);
+    var v = bytes2BigInt(t);
     if ((t.length * 8) > _n.bitLength) {
       v = v >> ((t.length * 8) - _n.bitLength);
     }
@@ -341,7 +342,8 @@ class _RFC6979KCalculator {
 
 
   Uint8List _asUnsignedByteArray(BigInt value) {
-    var bytes = value.toByteArray();
+
+    var bytes = integer2Bytes(value);
 
     if (bytes[0] == 0) {
       return new Uint8List.fromList(bytes.sublist(1));

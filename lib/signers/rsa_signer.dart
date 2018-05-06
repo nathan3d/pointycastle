@@ -109,8 +109,8 @@ class RSASigner implements Signer {
     _digest.doFinal(hash, 0);
 
 
-    var sig = new Uint8List(_rsa.outputBlockSize);
-    var len = _rsa.processBlock(signature.bytes, 0, signature.bytes.length, sig, 0);
+    Uint8List sig = new Uint8List(_rsa.outputBlockSize);
+    int len = _rsa.processBlock(signature.bytes, 0, signature.bytes.length, sig, 0);
     sig = sig.sublist(0, len);
 
     var expected = _derEncode(hash);
@@ -124,13 +124,13 @@ class RSASigner implements Signer {
       return true; //return Arrays.constantTimeAreEqual(sig, expected);
 
     } else if (sig.length == expected.length - 2) { // NULL left out
-      var sigOffset = sig.length - hash.length - 2;
-      var expectedOffset = expected.length - hash.length - 2;
+      int sigOffset = sig.length - hash.length - 2;
+      int expectedOffset = expected.length - hash.length - 2;
 
       expected[1] -= 2;      // adjust lengths
       expected[3] -= 2;
 
-      var nonEqual = 0;
+      int nonEqual = 0;
 
       for (var i = 0; i < hash.length; i++) {
         nonEqual |= (sig[sigOffset + i] ^ expected[expectedOffset + i]);

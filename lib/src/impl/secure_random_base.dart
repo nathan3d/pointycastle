@@ -7,6 +7,7 @@ library pointycastle.src.impl.random.secure_random_base;
 import "dart:typed_data";
 
 import "package:pointycastle/api.dart";
+import 'package:pointycastle/src/bigint.dart';
 import "package:pointycastle/src/ufixnum.dart";
 
 /**
@@ -30,7 +31,8 @@ abstract class SecureRandomBase implements SecureRandom {
   }
 
   BigInt nextBigInteger( int bitLength ) {
-    return new BigInt.fromBytes(1, _randomBits(bitLength));
+    bytes2BigInt(_randomBits(bitLength));
+    return bytes2BigInt(_randomBits(bitLength));;
   }
 
   Uint8List nextBytes( int count ) {

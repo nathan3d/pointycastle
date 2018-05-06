@@ -9,6 +9,7 @@ import "dart:typed_data";
 import "package:pointycastle/api.dart";
 import "package:pointycastle/ecc/ecc_base.dart" hide ECFieldElementBase, ECPointBase, ECCurveBase;
 import "package:pointycastle/ecc/ecc_base.dart" as ecc;
+import 'package:pointycastle/src/bigint.dart';
 
 
 /** return index of lowest 1-bit in x, x < 2^31 */
@@ -16,23 +17,23 @@ int _lbit(BigInt x) {
   // Implementation borrowed from bignum.BigIntegerDartvm.
   if (x == BigInt.zero) return -1;
   int r = 0;
-  while ((x & BigInt.from(0xffffffff)) == BigInt.zero) {
+  while ((x & new BigInt.from(0xffffffff)) == BigInt.zero) {
     x >>= 32;
     r += 32;
   }
-  if ((x & BigInt.from(0xffff)) == BigInt.zero) {
+  if ((x & new BigInt.from(0xffff)) == BigInt.zero) {
     x >>= 16;
     r += 16;
   }
-  if ((x & BigInt.from(0xff)) == BigInt.zero) {
+  if ((x & new BigInt.from(0xff)) == BigInt.zero) {
     x >>= 8;
     r += 8;
   }
-  if ((x & BigInt.from(0xf)) == BigInt.zero) {
+  if ((x & new BigInt.from(0xf)) == BigInt.zero) {
     x >>= 4;
     r += 4;
   }
-  if ((x & BigInt.from(3)) == BigInt.zero) {
+  if ((x & new BigInt.from(3)) == BigInt.zero) {
     x >>= 2;
     r += 2;
   }
@@ -286,7 +287,7 @@ class ECPoint extends ecc.ECPointBase {
     }
 
     var TWO = curve.fromBigInteger(BigInt.two);
-    var THREE = curve.fromBigInteger(BigInt.from(3));
+    var THREE = curve.fromBigInteger(new BigInt.from(3));
     var gamma = ((x.square()*THREE)+curve.a)/(y*TWO);
 
     var x3 = gamma.square()-(x*TWO);
@@ -521,7 +522,7 @@ List<int> _windowNaf(int width, BigInt k) {
 
   // 2^width as short and BigInt
   int pow2wB = (1 << width);
-  BigInt pow2wBI = BigInt.from(pow2wB);
+  BigInt pow2wBI = new BigInt.from(pow2wB);
 
   int i = 0;
 
@@ -550,7 +551,7 @@ List<int> _windowNaf(int width, BigInt k) {
 
       // wnaf[i] is now in [-2^(width-1), 2^(width-1)-1]
 
-      k = k-BigInt.from(wnaf[i]);
+      k = k-new BigInt.from(wnaf[i]);
       length = i;
     } else {
       wnaf[i] = 0;
@@ -570,7 +571,8 @@ List<int> _windowNaf(int width, BigInt k) {
 }
 
 Uint8List _x9IntegerToBytes( BigInt s, int qLength ) {
-  Uint8List bytes = new Uint8List.fromList(s.toByteArray());
+
+  Uint8List bytes = integer2Bytes(s);
 
   if( qLength < bytes.length ) {
     return bytes.sublist( bytes.length-qLength );

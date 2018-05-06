@@ -10,6 +10,7 @@ import "package:pointycastle/api.dart";
 import "package:pointycastle/asymmetric/api.dart";
 import "package:pointycastle/src/impl/base_asymmetric_block_cipher.dart";
 import "package:pointycastle/src/registry/registry.dart";
+import 'package:pointycastle/src/bigint.dart';
 
 class RSAEngine extends BaseAsymmetricBlockCipher {
 
@@ -85,7 +86,7 @@ class RSAEngine extends BaseAsymmetricBlockCipher {
       throw new ArgumentError("Input too large for RSA cipher");
     }
 
-    var res = new BigInt.fromBytes(1, inp.sublist(inpOff, inpOff+len));
+    var res = bytes2BigInt(inp.sublist(inpOff, inpOff+len));
     if (res >= _key.modulus) {
       throw new ArgumentError("Input too large for RSA cipher");
     }
@@ -94,7 +95,7 @@ class RSAEngine extends BaseAsymmetricBlockCipher {
   }
 
   int _convertOutput(BigInt result, Uint8List out, int outOff) {
-    final output = result.toByteArray();
+    final output = integer2Bytes(result);
 
     if (_forEncryption) {
       if ((output[0] == 0) && (output.length > outputBlockSize)) { // have ended up with an extra zero byte, copy down.
@@ -124,18 +125,17 @@ class RSAEngine extends BaseAsymmetricBlockCipher {
   BigInt _processBigInteger(BigInt input) {
     if (_key is RSAPrivateKey) {
       var privKey = (_key as RSAPrivateKey);
-      var mP, mQ, h, m;
+      BigInt mP, mQ, h, m;
+      mP = modPow(input.remainder(privKey.p), _dP, privKey.p);
+      mQ = modPow(input.remainder(privKey.q), _dQ, privKey.q);
 
-      mP = (input.remainder(privKey.p)).modPow(_dP, privKey.p);
 
-      mQ = (input.remainder(privKey.q)).modPow(_dQ, privKey.q);
+      h = mP -mQ;
+      h = h * _qInv;
+      h = h % privKey.p;
 
-      h = mP.subtract(mQ);
-      h = h.multiply(_qInv);
-      h = h.mod(privKey.p);
-
-      m = h.multiply(privKey.q);
-      m = m.add(mQ);
+      m = h * privKey.q;
+      m = m + mQ;
 
       return m;
     } else {
